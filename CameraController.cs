@@ -1,0 +1,64 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CameraController : MonoBehaviour
+{
+
+    private Camera cam;
+
+    // Use this for initialization
+    void Start()
+    {
+        // set the desired aspect ratio (the values in this example are
+        // hard-coded for 16:9, but you could make them into public
+        // variables instead so you can set them at design time)
+        float targetaspect = 9.0f / 16.0f;
+
+        // determine the game window's current aspect ratio
+        float windowaspect = (float)Screen.width / (float)Screen.height;
+
+        // current viewport height should be scaled by this amount
+        float scaleheight = windowaspect / targetaspect;
+
+        // obtain camera component so we can modify its viewport
+        cam = GetComponent<Camera>();
+
+        // if scaled height is less than current height, add letterbox
+        if (scaleheight < 1.0f)
+        {
+            Rect rect = cam.rect;
+
+            rect.width = 1.0f;
+            rect.height = scaleheight;
+            rect.x = 0;
+            rect.y = (1.0f - scaleheight) / 2.0f;
+
+            cam.rect = rect;
+        }
+        else // add pillarbox
+        {
+            float scalewidth = 1.0f / scaleheight;
+
+            Rect rect = cam.rect;
+
+            rect.width = scalewidth;
+            rect.height = 1.0f;
+            rect.x = (1.0f - scalewidth) / 2.0f;
+            rect.y = 0;
+
+            cam.rect = rect;
+        }
+    }
+
+    public void MoveCamera(float dist)
+    {
+        cam.transform.Translate(0, dist, 0);
+    }
+
+    public void ResetCamera() {
+      Vector3 pos = cam.transform.position;
+      pos.y = 0;
+      cam.transform.position = pos;
+    }
+}
