@@ -62,6 +62,9 @@ public class GameController : MonoBehaviour
 
         // Set high score line
         setHiscoreLine();
+
+        // Ensure screen never times out
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
     }
 
     void Update()
@@ -75,7 +78,7 @@ public class GameController : MonoBehaviour
 
     void OnApplicationPause(bool paused)
     {
-       if (paused) Pause();
+        if (paused) Pause();
     }
 
     public void Pause()
@@ -102,7 +105,8 @@ public class GameController : MonoBehaviour
     public void Restart()
     {
         // If paused, unpause first
-        if (Time.timeScale == 0) {
+        if (Time.timeScale == 0)
+        {
             Time.timeScale = 1;
             isGamePaused = false;
         }
@@ -240,7 +244,8 @@ public class GameController : MonoBehaviour
             hiscoreText.transform.position = pos;
             hiscoreText.color = Color.yellow;
             hiscoreText.gameObject.SetActive(true);
-        } else
+        }
+        else
         {
             hiscoreLine.gameObject.SetActive(false);
             hiscoreText.gameObject.SetActive(false);
