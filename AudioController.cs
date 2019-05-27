@@ -44,6 +44,7 @@ public class AudioController : MonoBehaviour {
 
   public void Restart() {
       currTrack = 0;
+      paused = false;
       backgroundMusic.Stop();
       backgroundMusic.clip = soundtracks[0];
       backgroundMusic.loop = true;

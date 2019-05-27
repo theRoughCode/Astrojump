@@ -5,13 +5,14 @@ using UnityEngine;
 public class PanelController : MonoBehaviour
 {
     // Type of panels, their respective probabilities
-    private string[] panelTypes = { "GreenPanel", "OrangePanel", "RedPanel" };
-    private float[] yLevel = { 0, 20, 70, 150 };
+    private string[] panelTypes = { "GreenPanel", "OrangePanel", "RedPanel", "BluePanel", "PurplePanel" };
+    private float[] yLevel = { 0, 20, 70, 150, 300 };
     private float[,] panelProbs = {
-        { 1f, 0f, 0f },
-        { 0.7f, 0.3f, 0f },
-        { 0.5f, 0.3f, 0.2f },
-        { 0f, 0.5f, 0.5f },
+        { 1f, 0f, 0f, 0f, 0f },
+        { 0.7f, 0.3f, 0f, 0f, 0f },
+        { 0.5f, 0.3f, 0.2f, 0f, 0f },
+        { 0f, 0.4f, 0.4f, 0.2f, 0f },
+        { 0f, 0.3f, 0.3f, 0.3f, 0.1f },
     };
 
     // Difficulty settings
@@ -79,6 +80,7 @@ public class PanelController : MonoBehaviour
 
             // If orange panel, initialize
             if (panelType == "OrangePanel") panel.GetComponent<OrangePanel>().Initialize();
+            else if (panelType == "PurplePanel") panel.GetComponent<PurplePanel>().Initialize(minX, maxX);
 
             panels.Enqueue(panel);
             lastPanel = panel;

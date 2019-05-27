@@ -10,17 +10,14 @@ public class SelectMenuController : MonoBehaviour {
   int currIdx;
 
   void Start() {
-      string animName = PlayerPrefs.GetString("PlayerAnim");
-
-      if (animName == null) currIdx = 0;
+      string animName = PlayerPrefs.GetString("PlayerAnim", "BlueAstroAnim");
 
       // Turn off all jumps excepted selected
       for (int i = 0; i < avatars.Length; i++) {
           MainMenuPlayerController avatar = avatars[i].GetComponent<MainMenuPlayerController>();
           avatar.SetInitHeight();
-          if (anims[i].name == animName) {
-              currIdx = i;
-          } else avatar.SetJump(false);
+          if (anims[i].name == animName) currIdx = i;
+          else avatar.SetJump(false);
       }
   }
 

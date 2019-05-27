@@ -4,12 +4,17 @@ using System.Collections;
 public class PlayerController : MonoBehaviour
 {
 
+    // Audio
+    private AudioSource audioSource;
+    public AudioClip bounceClip;
+
     // Access GameController for score
     private GameController gameController;
 
     private float jumpVelocity;
-    private float tiltVelocity = 2;
-    private float maxSpeed;
+    private float acceleration;
+    private float tiltVelocity = 2.0f;
+    private float speed;
 
     // Boundaries
     private float minX, maxX;
@@ -32,6 +37,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         coll = GetComponent<BoxCollider2D>();
@@ -54,8 +60,9 @@ public class PlayerController : MonoBehaviour
     {
         // Initialize variables
         rb.position = new Vector2(0, initHeight);
-        maxSpeed = 5f;
-        jumpVelocity = 5f;
+        acceleration = PlayerPrefs.GetFloat("Acceleration", 2f);
+        speed = 2.5f * acceleration;
+        jumpVelocity = 5.5f;
         isDescending = true;
         gameController = gameCon;
 
@@ -80,7 +87,7 @@ public class PlayerController : MonoBehaviour
         float h = Input.acceleration.x * tiltVelocity;
         if (h == 0) h = Input.GetAxis("Horizontal");  // If on PC
 
-        rb.velocity = new Vector2(h * maxSpeed, rb.velocity.y);
+        rb.velocity = new Vector2(h * speed, rb.velocity.y);
 
         anim.SetFloat("x_dir", rb.velocity.x);
         anim.SetFloat("y_dir", rb.velocity.y);
@@ -121,6 +128,9 @@ public class PlayerController : MonoBehaviour
     void OnCollisionEnter2D(Collision2D collision)
     {
         rb.velocity = new Vector2(rb.velocity.x, jumpVelocity);
+
+        // Play sound
+        if (collision.gameObject.tag == "Panel") audioSource.PlayOneShot(bounceClip, 1f);
     }
 
     public void KillPlayer()

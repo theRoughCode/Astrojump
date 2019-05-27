@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
+using System.Collections.Generic;
+using System.Text;
+using UnityEngine.Networking;
 using TMPro;
 
 public class GameController : MonoBehaviour
@@ -17,6 +20,9 @@ public class GameController : MonoBehaviour
 
     // Access camera to move
     public CameraController cam;
+
+    // Access background controller to move
+    BgController bgController;
 
     // Access AudioManager
     public AudioController audioController;
@@ -50,6 +56,8 @@ public class GameController : MonoBehaviour
     void Start()
     {
         scoreText.text = "Score: " + score;
+
+        bgController = gameObject.GetComponent<BgController>();
 
         // Spawn player
         GameObject playerObj = Instantiate(Resources.Load("Prefabs/Player")) as GameObject;
@@ -105,7 +113,7 @@ public class GameController : MonoBehaviour
     public void Restart()
     {
         // If paused, unpause first
-        if (Time.timeScale == 0)
+        if (Time.timeScale == 0 || isGamePaused)
         {
             Time.timeScale = 1;
             isGamePaused = false;
@@ -120,6 +128,9 @@ public class GameController : MonoBehaviour
 
         // Reset camera view
         cam.ResetCamera();
+
+        // Reset background
+        bgController.Initialize();
 
         // If player is destroyed, instantiate it
         if (player == null)
@@ -162,6 +173,9 @@ public class GameController : MonoBehaviour
         // Move camera
         cam.MoveCamera(height - maxHeight);
 
+        // Move background
+        bgController.Scroll(height - maxHeight);
+
         maxHeight = height;
     }
 
@@ -184,6 +198,7 @@ public class GameController : MonoBehaviour
             PlayerPrefs.SetInt("hiscore", score);
             newHiscoreText.enabled = true;
             gameOverHiscoreText.enabled = false;
+            StartCoroutine(updateHiscore(score));
         }
         else if (hiscore == 0)
         {
@@ -211,6 +226,26 @@ public class GameController : MonoBehaviour
         isGamePaused = true;
     }
 
+    // Updates high score on leaderboards
+    IEnumerator updateHiscore(int score)
+    {
+        JSONObject entry = new JSONObject(JSONObject.Type.OBJECT);
+        entry.AddField("name", PlayerPrefs.GetString("PlayerName", "Anon"));
+        entry.AddField("score", score);
+
+        var request             = new UnityWebRequest("https://astrojumpgame.firebaseio.com/leaderboards.json", "POST");
+        byte[] bodyRaw          = Encoding.UTF8.GetBytes(entry.ToString());
+        request.uploadHandler   = (UploadHandler) new UploadHandlerRaw(bodyRaw);
+        request.downloadHandler = (DownloadHandler) new DownloadHandlerBuffer();
+        request.SetRequestHeader("Content-Type", "application/json");
+        yield return request.SendWebRequest();
+        if (request.isNetworkError || request.isHttpError)
+        {
+            Debug.Log(request.error);
+            Debug.Log(request.downloadHandler.text);
+        }
+    }
+
     void setScore(int newScore)
     {
         score = newScore;
@@ -234,7 +269,7 @@ public class GameController : MonoBehaviour
             pos.y = hiscoreY;
             hiscoreLine.SetPosition(1, pos);
             hiscoreLine.material = new Material(Shader.Find("Sprites/Default"));
-            hiscoreLine.sortingLayerName = "Background";
+            hiscoreLine.sortingLayerName = "Hiscore";
             hiscoreLine.startColor = Color.yellow;
             hiscoreLine.endColor = Color.yellow;
 
